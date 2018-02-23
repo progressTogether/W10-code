@@ -38,8 +38,17 @@ class Model():
                 tf.summary.histogram('embed', embed)
 
             data = tf.nn.embedding_lookup(embed, self.X)
-
+        print (data)
+        print ('************************************%%%%%%%*****************************')
         with tf.variable_scope('rnn'):
+            cell = tf.nn.rnn_cell.BasicRNNCell(self.dim_embedding)
+            cell = tf.nn.rnn_cell.MultiRNNCell([cell] * self.rnn_layers)
+
+            self.state_tensor = cell.zero_state(self.batch_size, tf.float32)
+            outputs_tensor, self.outputs_state_tensor = tf.nn.dynamic_rnn(cell, data, initial_state=self.state_tensor)
+            #rnn_outputs = tf.reshape(rnn_outputs, [-1, self.num_words])
+            print(outputs_tensor)
+            print(self.outputs_state_tensor)
             ##################
             # Your Code here
             ##################
@@ -51,6 +60,12 @@ class Model():
         seq_output_final = tf.reshape(seq_output, [-1, self.dim_embedding])
 
         with tf.variable_scope('softmax'):
+            W = tf.get_variable('W', [self.dim_embedding, self.num_words])
+            b = tf.get_variable('b', [self.num_words], initializer=tf.constant_initializer(0.0))
+        #logits = [tf.matmul(rnn_output, W) + b for rnn_output in rnn_outputs]
+        logits = tf.reshape(tf.matmul(tf.reshape(outputs_tensor, [-1, self.dim_embedding]), W) + b,[self.batch_size, self.num_steps, self.num_words])
+
+
             ##################
             # Your Code here
             ##################
