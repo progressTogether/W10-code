@@ -38,43 +38,48 @@ class Model():
                 tf.summary.histogram('embed', embed)
 
             data = tf.nn.embedding_lookup(embed, self.X)
-        print (data)
-        print ('************************************%%%%%%%*****************************')
-        with tf.variable_scope('rnn'):
-            cell = tf.nn.rnn_cell.BasicRNNCell(self.dim_embedding)
-            cell = tf.nn.rnn_cell.MultiRNNCell([cell] * self.rnn_layers)
 
-            self.state_tensor = cell.zero_state(self.batch_size, tf.float32)
-            outputs_tensor, self.outputs_state_tensor = tf.nn.dynamic_rnn(cell, data, initial_state=self.state_tensor)
-            #rnn_outputs = tf.reshape(rnn_outputs, [-1, self.num_words])
+        with tf.variable_scope('rnn'):
+
+            stacked_rnn = []
+            for i in range(self.rnn_layers):
+                lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.dim_embedding, forget_bias=1.0, state_is_tuple=True)
+                dropout_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob)
+                stacked_rnn.append(dropout_cell)
+
+            cell = tf.nn.rnn_cell.MultiRNNCell(stacked_rnn, state_is_tuple=True)
+
+            init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
+
+            outputs_tensor, state = tf.nn.dynamic_rnn(cell, inputs=data, initial_state=init_state, time_major=False)
             print(outputs_tensor)
-            print(self.outputs_state_tensor)
-            ##################
-            # Your Code here
-            ##################
+            print(state)
+            outputs_state_tensor = outputs_tensor[:, -1, :]
+            self.outputs_state_tensor = outputs_state_tensor
+            self.state_tensor = outputs_state_tensor
 
         # concate every time step
         seq_output = tf.concat(outputs_tensor, 1)
 
         # flatten it
-        seq_output_final = tf.reshape(seq_output, [-1, self.dim_embedding])
+        seq_output_final = tf.reshape(tf.concat(outputs_tensor, 1), [-1, self.dim_embedding])
+        print('seq_output.shape: ', seq_output.shape)
+        print('seq_output_final.shape: ', seq_output_final.shape)
 
         with tf.variable_scope('softmax'):
-            W = tf.get_variable('W', [self.dim_embedding, self.num_words])
+            W = tf.get_variable('W', [self.dim_embedding, self.num_words],
+                                initializer=tf.random_normal_initializer(stddev=0.01))
             b = tf.get_variable('b', [self.num_words], initializer=tf.constant_initializer(0.0))
-        #logits = [tf.matmul(rnn_output, W) + b for rnn_output in rnn_outputs]
-        logits = tf.reshape(tf.matmul(tf.reshape(outputs_tensor, [-1, self.dim_embedding]), W) + b,[self.batch_size, self.num_steps, self.num_words])
-
-
-            ##################
-            # Your Code here
-            ##################
+        logits = tf.matmul(tf.reshape(tf.concat(outputs_tensor, 1), [-1, self.dim_embedding]), W) + b
+        print('outputs_state_tensor.shape: ', outputs_state_tensor.shape)
+        print('logits.shape: ', logits.shape)
 
         tf.summary.histogram('logits', logits)
 
         self.predictions = tf.nn.softmax(logits, name='predictions')
 
         y_one_hot = tf.one_hot(self.Y, self.num_words)
+        print('y_one_hot.shape: ', y_one_hot.shape)
         y_reshaped = tf.reshape(y_one_hot, logits.get_shape())
         loss = tf.nn.softmax_cross_entropy_with_logits(
             logits=logits, labels=y_reshaped)
@@ -88,5 +93,5 @@ class Model():
             zip(grads, tvars), global_step=self.global_step)
 
         tf.summary.scalar('loss', self.loss)
-
+        
         self.merged_summary_op = tf.summary.merge_all()
