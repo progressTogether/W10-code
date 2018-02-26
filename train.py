@@ -30,6 +30,7 @@ with open(FLAGS.reverse_dictionary, encoding='utf-8') as inf:
     reverse_dictionary = json.load(inf, encoding='utf-8')
 
 
+
 model = Model(learning_rate=FLAGS.learning_rate, batch_size=FLAGS.batch_size, num_steps=FLAGS.num_steps)
 model.build()
 
@@ -55,7 +56,7 @@ with tf.Session() as sess:
         #state = sess.run(model.outputs_state_tensor)
         for dl in utils.get_train_data(vocabulary, dictionary, batch_size=FLAGS.batch_size, num_steps=FLAGS.num_steps):
 
-            feed_dict = {model.X:dl[0],model.Y:dl[1],model.keep_prob:0.01}
+            feed_dict = {model.X:dl[0],model.Y:dl[1],model.keep_prob:FLAGS.keep_prob}
 
             gs, _, state, l, summary_string = sess.run(
                 [model.global_step, model.optimizer, model.outputs_state_tensor, model.loss, model.merged_summary_op], feed_dict=feed_dict)
