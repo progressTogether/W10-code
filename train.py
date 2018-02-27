@@ -49,7 +49,10 @@ with tf.Session() as sess:
         logging.debug('restore from [{0}]'.format(checkpoint_path))
 
     except Exception:
-        logging.debug('no check point found....')
+        logging.debug('no check point found in [{0}]'.format(FLAGS.output_dir))
+        checkpoint_path = FLAGS.restore_constant_checkout
+        saver.restore(sess, checkpoint_path)
+        logging.debug('restore from [{0}]'.format(checkpoint_path))
 
     for x in range(1):
         logging.debug('epoch [{0}]....'.format(x))

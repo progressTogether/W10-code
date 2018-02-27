@@ -36,6 +36,9 @@ def parse_args(check=True):
     parser.add_argument('--keep_prob', type=float, default=0.5,
                         help='keep prop')
 
+    parser.add_argument('--restore_constant_checkout', type=str, default='/data/progressTogether/rnn-data/model.ckpt-353460',
+                        help='keep prop')
+
     FLAGS, unparsed = parser.parse_known_args()
 
     return FLAGS, unparsed
