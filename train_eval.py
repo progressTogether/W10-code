@@ -14,7 +14,7 @@ if __name__ == '__main__':
     os.chdir(w_d)
 
     cmd = ""
-    for parm in ["output_dir", "text", "num_steps", "batch_size", "dictionary", "reverse_dictionary", "learning_rate","keep_prob"]:
+    for parm in ["output_dir", "text", "num_steps", "batch_size", "dictionary", "reverse_dictionary", "learning_rate","keep_prob","restore_constant_checkout"]:
         try:
             cmd += ' --{0}={1}'.format(parm, getattr(FLAGS, parm))
         except:
