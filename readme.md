@@ -1,33 +1,9 @@
-# 简介
-本代码为系列课程, 第十周部分的课后作业内容。
-http://edu.csdn.net/lecturer/1427
-
-# TinymMind上GPU运行费用较贵，每 CPU 每小时 $0.09，每 GPU 每小时 $0.99，所有作业内容推荐先在本地运行出一定的结果，保证运行正确之后，再上传到TinyMind上运行。初始运行推荐使用CPU运行资源，待所有代码确保没有问题之后，再启动GPU运行。
-
-TinyMind上Tensorflow已经有1.4的版本，能比1.3的版本快一点，推荐使用。
-
-**本作业用4CPU的速度也可以接受。考虑成本问题，本作业可以用TinyMind上的CPU资源来运行**
-
-## 作业内容
-
-使用tensorflow中的rnn相关操作，以作业提供的《全宋词》为训练数据，训练一个人工智能写词机。
-
-### word embedding 部分
-
-**TinyMind上没有对中文字体的很好的支持，这里的作业需要在本地完成**
 
 参考https://www.tensorflow.org/tutorials/word2vec的内容，以下述脚本为基础，完成对本作业提供的《全宋词》的embedding.
 
 https://www.github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/examples/tutorials/word2vec/word2vec_basic.py
 
-#### 作业评价标准
-学员需要提交下述图片作为作业成果，该文件在embedding脚本运行完之后输出。
-
-![embedding](tsne.png)
-
-图片中意义接近的词，如数字等，距离比较近（一这个数字是个特例，离其他数字比较远）。
-
-提供一个文档，说明自己对embedding的理解，以及对上述图片的结果分析和认识。
+###  embedding 部分
 
 #### 要点提示
 
